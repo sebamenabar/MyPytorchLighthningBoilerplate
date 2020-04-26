@@ -1,0 +1,6 @@
+comet-ml
+easydict
+numpy
+python-dotenv
+pytorch-lightning
+PyYAML

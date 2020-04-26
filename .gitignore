@@ -1,0 +1,11 @@
+.idea/
+*.DS_Store
+__pycache__/
+.env
+*.ipynb_checkpoints
+slurm/*
+data/*
+checkpoints/*
+experiments/*
+*.err
+*.out

@@ -1,0 +1,1 @@
+A template of everything I use when developing Pytorch NNs
