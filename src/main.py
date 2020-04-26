@@ -51,20 +51,6 @@ def parse_args_and_set_config():
                 def allowed_type(x):
                     return bool(parsing.strtobool(x))
 
-            if arg == "gpus":
-
-                def allowed_type(x):
-                    if "," in x:
-                        return str(x)
-                    else:
-                        return int(x)
-
-                def arg_default(x):
-                    if "," in x:
-                        return str(x)
-                    else:
-                        return int(x)
-
             parser.add_argument(
                 f"--{arg}",
                 default=arg_default,

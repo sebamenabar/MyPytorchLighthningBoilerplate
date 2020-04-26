@@ -14,11 +14,11 @@ from easydict import EasyDict as edict
 __C = edict()
 __C.cfg_file = ("", edict(help="optional config file", type=str))
 __C.gpus = (
-    "0",
+    None,
     edict(
         help="if single number number of gpus to use (-1 for all available), if comma-separated-ints the indices of gpus to use",
-        type=str,
-        default=0,
+        type=lambda x: str(x) if ',' in x else int(x),
+        default=None,
     ),
 )
 __C.num_workers = (0, edict(help="number of dataloader workers", type=int, default=0))
