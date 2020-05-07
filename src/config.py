@@ -23,12 +23,9 @@ __C.gpus = (
 )
 __C.num_workers = (0, edict(help="number of dataloader workers", type=int, default=0))
 __C.random_seed = (None, edict(type=int, help="random seed, none by default"))
-# __C.logdir = (
-#     "",
-#     edict(help="folder inside of experiments were the run will be saved", type=str),
-# )
-__C.logtb = (False, edict(help="log on tensorboard", action="store_true"))
 __C.logcomet = (False, edict(help="log on comet_ml", action="store_true"))
+__C.comet_workspace = ("debug", edict(help=" ", type=str, default="debug"))
+__C.comet_project_name = ("debug", edict(help=" ", type=str, default="debug"))
 __C.run_name = (
     "",
     edict(
@@ -39,10 +36,10 @@ __C.run_name = (
 __C.exp_name = (
     "",
     edict(
-        help="experiment name, if empty the run will be saved directly inside of `experiments`", type=str
+        help="experiment name, if empty the run will be saved directly inside of `experiments`",
+        type=str,
     ),
 )
-__C.comet_project_name = ("", edict(type=str))
 # __C.cuda = False
 __C.eval = (False, edict(help="run evaluation only", action="store_true"))
 __C.test = (False, edict(help="run testing onyl", action="store_true"))
@@ -53,7 +50,7 @@ __C.train.bsz = (64, edict(help="train batch size", type=int, default=64))
 __C.train.epochs = (10, edict(help="train max number of epochs", type=int, default=10))
 __C.train.lr = (1e-4, edict(help="optimizer lr", type=float, default=1e-4))
 
-__C.train.bsz = (64, edict(help="val batch size", type=int, default=64))
+__C.train.val_bsz = (64, edict(help="val batch size", type=int, default=64))
 
 # __C.model = edict()
 def _to_values_only(values, idx):
@@ -70,9 +67,18 @@ def cfg_to_parser_args():
     parser_args = edict()
     for k, v in flatten_json_iterative_solution(_to_values_only(__C, 1)).items():
         k1, _, arg_name = k.rpartition(".")
-        if k1 not in parser_args:
-            parser_args[k1] = {}
-        parser_args[k1][arg_name] = v
+        if k1.endswith(".choices"):
+            k1 = k1.rstrip("choices").rstrip(".")
+            if k1 not in parser_args:
+                parser_args[k1] = {"choices": [v]}
+            elif "choices" not in parser_args[k1]:
+                parser_args[k1]["choices"] = [v]
+            else:
+                parser_args[k1]["choices"].append(v)
+        else:
+            if k1 not in parser_args:
+                parser_args[k1] = {}
+            parser_args[k1][arg_name] = v
     return parser_args
 
 

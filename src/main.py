@@ -5,8 +5,9 @@ import dateutil
 import argparse
 from datetime import datetime as dt
 
-from dotenv import load_dotenv
+import numpy as np
 
+import torch
 import pytorch_lightning as pl
 from pytorch_lightning.utilities import parsing
 from base_pl_model import BasePLModel
@@ -17,6 +18,10 @@ from config import (
     rsetattr,
     flatten_json_iterative_solution,
 )
+
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 def parse_args_and_set_config():
@@ -33,7 +38,14 @@ def parse_args_and_set_config():
         else:
             parser.add_argument(f"--{arg_name}", **arg_kwargs)
 
-    blacklist = ["kwargs", "gpus", "max_epochs", "max_nb_epochs"]
+    blacklist = [
+        "kwargs",
+        "gpus",
+        "max_epochs",
+        "max_nb_epochs",
+        "default_root_dir",
+        "checkpoint_callback",
+    ]
     depr_arg_names = pl.Trainer.get_deprecated_arg_names() + blacklist
 
     allowed_types = (str, float, int, bool)
@@ -61,6 +73,7 @@ def parse_args_and_set_config():
             break
 
     args = parser.parse_args()
+    print(args)
     cfg_from_file(args.cfg_file)
     for argname in cfg_parser_args.keys():
         arg_to_cfg(args, argname, cfg, argname)
@@ -77,11 +90,23 @@ def arg_to_cfg(arg, arg_name, cfg, cfg_attr_target):
 if __name__ == "__main__":
     args = parse_args_and_set_config()
 
+    if cfg.random_seed is not None:
+        np.random.seed(cfg.random_seed)
+        torch.manual_seed(cfg.random_seed)
+
     model = BasePLModel(cfg)
-    trainer = pl.Trainer.from_argparse_args(args, max_epochs=cfg.train.epochs)
+    model.init_log()
+    loggers, ckpt_callback = model.make_lightning_loggers_ckpt()
+    trainer = pl.Trainer.from_argparse_args(
+        args,
+        logger=loggers,
+        checkpoint_callback=ckpt_callback,
+        max_epochs=cfg.train.epochs,
+        default_root_dir=model.exp_dir,
+    )
     if args.eval:
         pass
     elif args.test:
         pass
     else:
-        model.init_log()
+        trainer.fit(model)
