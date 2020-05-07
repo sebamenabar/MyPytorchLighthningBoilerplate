@@ -11,7 +11,7 @@ from datetime import datetime as dt
 from pytorch_lightning.utilities.distributed import rank_zero_only
 import pytorch_lightning as pl
 
-from config import cfg, mkdir_p
+from config import mkdir_p
 
 _plt = None
 
@@ -110,7 +110,7 @@ class BasePLModel(pl.LightningModule):
             plt.close(figure)
 
     def make_lightning_loggers_ckpt(self, ckpt_callback_kwargs=dict(
-            filepath=osp.join(self.exp_dir, "checkpoints/"),
+            # filepath=osp.join(self.exp_dir, "checkpoints/"),
             monitor="val_loss",
             verbose=True,
             save_top_k=2,
@@ -126,8 +126,12 @@ class BasePLModel(pl.LightningModule):
             )
             loggers.append(comet_logger)
 
+        default_ckpt_callback_kwargs = {
+            'filepath': osp.join(self.exp_dir, "checkpoints/"),
+        }
+        default_ckpt_callback_kwargs.update(ckpt_callback_kwargs)
         ckpt_callback = pl.callbacks.model_checkpoint.ModelCheckpoint(
-            **ckpt_callback_kwargs,
+            **default_ckpt_callback_kwargs,
         )
         return loggers, ckpt_callback
 
