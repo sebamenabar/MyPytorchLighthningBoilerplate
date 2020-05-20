@@ -1,6 +1,13 @@
 A template of everything I use when developing Pytorch NNs
 
-Filestructure
+# Add to your repo
+
+```bash
+git remote add plb https://github.com/sebamenabar/MyPytorchLighthningBoilerplate
+git pull plb master --allow-unrelated-histories
+```
+
+# Filestructure
 ```
     -cfg
         - config_file1.yml
