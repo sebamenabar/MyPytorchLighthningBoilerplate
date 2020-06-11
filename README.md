@@ -1,5 +1,12 @@
 A template of everything I use when developing Pytorch NNs
 
+# Todo
+
+* [ ] Add custom elements to args blacklist
+* [ ] Add kwargs conditioned on args
+* [ ] Sort out iterables in config
+
+
 # Add to your repo
 
 ```bash
